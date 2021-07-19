@@ -24,10 +24,10 @@ axios
     console.log(`Exp base: ${pokemon.base_experience}`)
 
     // Mostra o peso
-    console.log(`Peso: ${pokemon.weight} gramas`)
+    console.log(`Peso: ${pokemon.weight * 10 / 100}kg`)
 
     // Mostra a altura
-    console.log(`Altura: ${pokemon.height}0 centímetros`)
+    console.log(`Altura: ${pokemon.height * 10 / 100}m`)
 
     // Mostra a espécie
     console.log(`Espécie: ${pokemon.species.name.charAt(0).toUpperCase() + pokemon.species.name.slice(1)}`)
