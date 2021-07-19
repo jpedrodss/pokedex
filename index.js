@@ -8,6 +8,12 @@ axios
     // Mostra o nome
     console.log(pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1))
 
+    // Mostra os moves
+    console.log('Moves: ')
+    pokemon.moves.forEach(e => {
+        console.log(`   Nome do movimento: ${e.move.name}`)
+    })
+
     // Mostra as habilidades
     console.log('Habilidades: ')
     pokemon.abilities.forEach(e => {
