@@ -1,148 +1,77 @@
 import axios from "axios";
 
-// Procura o pokemon
-axios
-  .get("https://pokeapi.co/api/v2/pokemon/caterpie")
-  .then((response) => {
-    const pokemon = response.data;
-    // Mostra o nome
-    console.log(pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1));
+function evolution(especie) {
+  if (especie.evolves_from_species) {
+    return `de ${especie.evolves_from_species.name}`;
+  } else {
+    return "Esta é a primeira evolução.";
+  }
+}
 
-    // Id do pokemon
-    console.log(`ID do Pokemon: ${pokemon.id}`);
+function check_if(is) {
+  if (is) {
+    return "Sim";
+  } else {
+    return "Não";
+  }
+}
 
-    // Mostra os moves
-    console.log("Moves: ");
-    pokemon.moves.forEach((e) => {
-      console.log(`\tNome do movimento: ${e.move.name}`);
-    });
-
-    // Mostra as habilidades
-    console.log("Habilidades: ");
-    pokemon.abilities.forEach((e) => {
-      console.log(`\tNome da habilidade: ${e.ability.name}`);
-    });
-
-    // Mostra os status
-    console.log("Status base: ");
-    pokemon.stats.forEach((e) => {
-      console.log(`\t${e.stat.name}: ${e.base_stat}`);
-    });
-
-    // Experiência base
-    console.log(`Exp base: ${pokemon.base_experience}`);
-
-    // Mostra o peso
-    console.log(`Peso: ${(pokemon.weight * 10) / 100}kg`);
-
-    // Mostra a altura
-    console.log(`Altura: ${(pokemon.height * 10) / 100}m`);
-
-    // Mostra se é lendário
-    console.log("É lendário? ");
-    if (pokemon.is_legendary) {
-      console.log("\tSim");
-    } else {
-      console.log("\tNão");
+function evolves_to(evolves, pokemon) {
+  // Se houver próximas evoluções
+  if (evolves) {
+    if (evolves.species.name !== pokemon.data.name) {
+      // Mostra a segunda evolução
+      return "Segunda evolução: " + evolves.species.name;
     }
-
-    // Mostra se é mítico
-    console.log("É mítico? ");
-    if (pokemon.is_mythical) {
-      console.log("\tSim");
-    } else {
-      console.log("\tNão");
+    if (evolves.evolves_to[0]) {
+      // Mostra a terceira evolução
+      if (evolves.evolves_to[0].species.name !== pokemon.data.name) {
+        return "Terceira evolução: " + evolves.evolves_to[0].species.name;
+      }
+      return "Evolução máxima!";
     }
+  }
+  return "Evolução máxima!";
+}
 
-    // Mostra se é bebê
-    console.log("É bebê? ");
-    if (pokemon.is_baby) {
-      console.log("\tSim");
-    } else {
-      console.log("\tNão");
-    }
+async function pokemon_data() {
+  // Procura o pokemon.data
+  const pokemon = await axios.get("https://pokeapi.co/api/v2/pokemon/raticate");
+  
+  // Pega a espécie do pokemon.data
+  const especie = await axios.get(pokemon.data.species.url);
+  
+  // Pega as próximas evoluções
+  const evoluindo = await axios.get(especie.data.evolution_chain.url);
 
-    // Tipos
-    console.log("Tipo: ");
-    pokemon.types.forEach((e) => {
-      console.log(
-        `\t${e.type.name.charAt(0).toUpperCase() + e.type.name.slice(1)}`
-      );
-    });
+  // Define as informações do pokemon
+  const pokemon_info = {
+    id: pokemon.data.id,
+    name: pokemon.data.name,
+    especie: pokemon.data.species.name,
+    peso: (pokemon.data.weight * 10) / 100,
+    altura: (pokemon.data.height * 10) / 100,
+    exp_base: pokemon.data.base_experience,
+    moves: pokemon.data.moves.map((e) => {
+      return `${e.move.name}`;
+    }),
+    habilidades: pokemon.data.abilities.map((e) => {
+      return `${e.ability.name} `;
+    }),
+    status: pokemon.data.stats.map((e) => {
+      return `${e.stat.name}: ${e.base_stat}`;
+    }),
+    tipos: pokemon.data.types.map((e) => {
+      return `${e.type.name}`;
+    }),
+    lendario: check_if(especie.data.is_legendary),
+    mitico: check_if(especie.data.is_mythical),
+    bebe: check_if(especie.data.is_baby),
+    evolui: evolution(especie.data),
+    evolucao: evolves_to(evoluindo.data.chain.evolves_to[0], pokemon),
+  };
 
-    // Mostra a espécie
-    console.log(
-      `Espécie: ${
-        pokemon.species.name.charAt(0).toUpperCase() +
-        pokemon.species.name.slice(1)
-      }`
-    );
+  console.log(pokemon_info);
+}
 
-    // Pega a espécie do pokemon
-    axios
-      .get(pokemon.species.url)
-      .then((response) => {
-        const evolucao = response.data;
-
-        // Mostra de quem evolui
-        if (evolucao.evolves_from_species) {
-          console.log(
-            `Evolui de: ${
-              evolucao.evolves_from_species.name.charAt(0).toUpperCase() +
-              evolucao.evolves_from_species.name.slice(1)
-            }`
-          );
-        } else {
-          console.log("Esta é a primeira evolução.");
-        }
-
-        // Pega as próximas evoluções
-        axios
-          .get(evolucao.evolution_chain.url)
-          .then((response) => {
-            let evoluindo = response.data;
-
-            // Se houver próximas evoluções
-            if (evoluindo.chain.evolves_to[0]) {
-              if (evoluindo.chain.evolves_to[0].species.name !== pokemon.name) {
-                // Mostra a segunda evolução
-                console.log("Segunda evolução: ");
-                console.log(
-                  "\t" +
-                  evoluindo.chain.evolves_to[0].species.name
-                  .charAt(0)
-                  .toUpperCase() +
-                  evoluindo.chain.evolves_to[0].species.name.slice(1)
-                  );
-                }
-                if (evoluindo.chain.evolves_to[0].evolves_to[0]) {
-                // Mostra a terceira evolução
-                if (
-                  evoluindo.chain.evolves_to[0].evolves_to[0].species.name !==
-                  pokemon.name
-                ) {
-                  console.log("Terceira evolução: ");
-                  console.log(
-                    "\t" +
-                      evoluindo.chain.evolves_to[0].evolves_to[0].species.name
-                        .charAt(0)
-                        .toUpperCase() +
-                      evoluindo.chain.evolves_to[0].evolves_to[0].species.name.slice(
-                        1
-                      )
-                  );
-                } else {
-                  console.log("Evolução máxima!");
-                }
-              }
-            } else {
-              console.log("Evolução máxima!");
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      })
-      .catch((error) => console.log(error));
-  })
-  .catch((error) => console.log(error));
+pokemon_data();
