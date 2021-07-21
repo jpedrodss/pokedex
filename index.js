@@ -36,7 +36,7 @@ function evolves_to(evolves, pokemon) {
 
 async function pokemon_data() {
   // Procura o pokemon.data
-  const pokemon = await axios.get("https://pokeapi.co/api/v2/pokemon/raticate");
+  const pokemon = await axios.get("https://pokeapi.co/api/v2/pokemon/charizard");
   
   // Pega a espécie do pokemon.data
   const especie = await axios.get(pokemon.data.species.url);
@@ -64,6 +64,7 @@ async function pokemon_data() {
     tipos: pokemon.data.types.map((e) => {
       return `${e.type.name}`;
     }),
+    sprite_padrao_frente: pokemon.data.sprites.front_default,
     lendario: check_if(especie.data.is_legendary),
     mitico: check_if(especie.data.is_mythical),
     bebe: check_if(especie.data.is_baby),
