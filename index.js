@@ -37,6 +37,8 @@ function evolves_to(evolves, pokemon) {
 async function pokemon_data() {
   // Procura o pokemon.data
   const pokemon = await axios.get("https://pokeapi.co/api/v2/pokemon/charizard");
+  console.log(pokemon.data.species.url)
+  console.log(pokemon.data.id)
   
   // Pega a espécie do pokemon.data
   const especie = await axios.get(pokemon.data.species.url);
